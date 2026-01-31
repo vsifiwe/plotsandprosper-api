@@ -27,11 +27,11 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Verify project structure per plan (api/, common/, manage.py, tests/unit, tests/integration, tests/contract) and add tests directories if missing
-- [ ] T002 Add Django 5.x, djangorestframework, psycopg[binary], djangorestframework-simplejwt, drf-spectacular to requirements.txt at repository root
-- [ ] T003 [P] Configure ruff (or black/isort) in pyproject.toml or setup.cfg at repository root
-- [ ] T004 [P] Add .env.example at repository root with DATABASE_URL, SECRET_KEY, DEBUG
-- [ ] T005 [P] Add Dockerfile and docker-compose.yml at repository root for app and PostgreSQL 16
+- [X] T001 Verify project structure per plan (api/, common/, manage.py, tests/unit, tests/integration, tests/contract) and add tests directories if missing
+- [X] T002 Add Django 5.x, djangorestframework, psycopg[binary], djangorestframework-simplejwt, drf-spectacular to requirements.txt at repository root
+- [X] T003 [P] Configure ruff (or black/isort) in pyproject.toml or setup.cfg at repository root
+- [X] T004 [P] Add .env.example at repository root with DATABASE_URL, SECRET_KEY, DEBUG
+- [X] T005 [P] Add Dockerfile and docker-compose.yml at repository root for app and PostgreSQL 16
 
 ---
 
@@ -41,16 +41,16 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T006 Configure PostgreSQL 16 in api/settings.py (DATABASES default, ENGINE django.db.backends.postgresql)
-- [ ] T007 Ensure common app has migrations package and run python manage.py makemigrations common (no new models yet if none added)
-- [ ] T008 [P] Add rest_framework and rest_framework_simplejwt to INSTALLED_APPS and configure JWT settings in api/settings.py
-- [ ] T009 [P] Add drf_spectacular to INSTALLED_APPS and set DEFAULT_SCHEMA_CLASS in api/settings.py; add schema URL in api/urls.py
-- [ ] T010 Mount /api/v1/ in api/urls.py and include common.urls for API routes
-- [ ] T011 Ensure Member model in common/models/member.py has role/roles and display_name (or firstName/lastName) for position; use DecimalField for any money fields if added
-- [ ] T012 Implement RBAC permission classes in common/permissions.py (IsMemberReadOwnAndAggregates, IsAdmin, IsAuditorReadOnly) using Member.roles
-- [ ] T013 Configure REST_FRAMEWORK authentication (JWT) and default permission classes in api/settings.py
-- [ ] T014 [P] Contract test for POST /api/v1/auth/token/ in tests/contract/test_auth.py (obtain JWT)
-- [ ] T015 Configure structured error handling and logging in api/settings.py (LOGGING)
+- [X] T006 Configure PostgreSQL 16 in api/settings.py (DATABASES default, ENGINE django.db.backends.postgresql)
+- [X] T007 Ensure common app has migrations package and run python manage.py makemigrations common (no new models yet if none added)
+- [X] T008 [P] Add rest_framework and rest_framework_simplejwt to INSTALLED_APPS and configure JWT settings in api/settings.py
+- [X] T009 [P] Add drf_spectacular to INSTALLED_APPS and set DEFAULT_SCHEMA_CLASS in api/settings.py; add schema URL in api/urls.py
+- [X] T010 Mount /api/v1/ in api/urls.py and include common.urls for API routes
+- [X] T011 Ensure Member model in common/models/member.py has role/roles and display_name (or firstName/lastName) for position; use DecimalField for any money fields if added
+- [X] T012 Implement RBAC permission classes in common/permissions.py (IsMemberReadOwnAndAggregates, IsAdmin, IsAuditorReadOnly) using Member.roles
+- [X] T013 Configure REST_FRAMEWORK authentication (JWT) and default permission classes in api/settings.py
+- [X] T014 [P] Contract test for POST /api/v1/auth/token/ in tests/contract/test_auth.py (obtain JWT)
+- [X] T015 Configure structured error handling and logging in api/settings.py (LOGGING)
 
 **Checkpoint**: Foundation ready — auth, API versioning, OpenAPI, and RBAC in place; user story implementation can begin
 

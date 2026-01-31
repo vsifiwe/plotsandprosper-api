@@ -3,6 +3,7 @@ from django.urls import path
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from .views import (
+    AssetCreateView,
     ContributionCreateView,
     ContributionWindowListCreateView,
     GroupAggregatesView,
@@ -37,6 +38,11 @@ urlpatterns = [
         "admin/investments/",
         InvestmentCreateView.as_view(),
         name="admin_investments",
+    ),
+    path(
+        "admin/assets/",
+        AssetCreateView.as_view(),
+        name="admin_assets",
     ),
     path(
         "admin/reversals/",

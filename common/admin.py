@@ -5,6 +5,8 @@ common/admin.py
 from django.contrib import admin
 
 from .models import (
+    Asset,
+    AssetShare,
     Contribution,
     ContributionWindow,
     HoldingShare,
@@ -93,6 +95,36 @@ class HoldingShareAdmin(admin.ModelAdmin):
     readonly_fields = ["created_at"]
     ordering = ["-created_at"]
     raw_id_fields = ["investment", "member"]
+
+
+@admin.register(Asset)
+class AssetAdmin(admin.ModelAdmin):
+    """Asset — immutable."""
+
+    list_display = [
+        "name",
+        "recorded_purchase_value",
+        "conversion_at",
+        "source_investment",
+        "created_at",
+    ]
+    list_filter = ["conversion_at"]
+    search_fields = ["name"]
+    readonly_fields = ["created_at"]
+    ordering = ["-conversion_at"]
+    raw_id_fields = ["source_investment"]
+
+
+@admin.register(AssetShare)
+class AssetShareAdmin(admin.ModelAdmin):
+    """Asset share — immutable."""
+
+    list_display = ["asset", "member", "share_percentage", "created_at"]
+    list_filter = ["asset"]
+    search_fields = ["member__email"]
+    readonly_fields = ["created_at"]
+    ordering = ["-created_at"]
+    raw_id_fields = ["asset", "member"]
 
 
 @admin.register(Reversal)

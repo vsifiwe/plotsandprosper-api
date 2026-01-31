@@ -3,6 +3,7 @@ common/views/__init__.py
 """
 
 from .admin_views import (
+    AssetCreateView,
     ContributionCreateView,
     ContributionWindowListCreateView,
     InvestmentCreateView,
@@ -14,6 +15,7 @@ from .position_views import MemberPositionView
 from .test_view import test_view
 
 __all__ = [
+    "AssetCreateView",
     "ContributionCreateView",
     "ContributionWindowListCreateView",
     "GroupAggregatesView",

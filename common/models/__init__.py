@@ -2,6 +2,8 @@
 common/models/__init__.py
 """
 
+from .asset import Asset
+from .asset_share import AssetShare
 from .contribution import Contribution
 from .contribution_window import ContributionWindow
 from .holding_share import HoldingShare
@@ -11,6 +13,8 @@ from .penalty import Penalty
 from .reversal import Reversal, ReversalRecordType
 
 __all__ = [
+    "Asset",
+    "AssetShare",
     "Contribution",
     "ContributionWindow",
     "HoldingShare",

@@ -121,16 +121,16 @@
 
 ### Tests for User Story 3 (REQUIRED for critical path: asset acquisition)
 
-- [ ] T041 [P] [US3] Integration test for asset conversion in tests/integration/test_asset_conversion.py (record asset with shares; position shows asset share and recorded value)
+- [X] T041 [P] [US3] Integration test for asset conversion in tests/integration/test_asset_conversion.py (record asset with shares; position shows asset share and recorded value)
 
 ### Implementation for User Story 3
 
-- [ ] T042 [US3] Create Asset model in common/models/asset.py (name, recorded_purchase_value DecimalField, conversion_at date, source_investment_id FK nullable, created_at, created_by FK nullable)
-- [ ] T043 [US3] Create AssetShare model in common/models/asset_share.py (asset FK, member FK, share_percentage DecimalField, created_at; immutable)
-- [ ] T044 [US3] Implement AssetConversionService in common/services/asset_service.py (record_asset: create Asset and AssetShare rows from agreed rule e.g. proportional to holdings at conversion)
-- [ ] T045 [US3] Implement POST /admin/assets/ in common/views/admin_views.py (admin only; thin, call AssetConversionService)
-- [ ] T046 [US3] Update PositionService in common/services/position_service.py to include assets_breakdown (AssetShare with recorded_purchase_value) in member position
-- [ ] T047 [US3] Wire POST /admin/assets/ under /api/v1/admin/ in common/urls.py; add Asset, AssetShare to common/admin.py
+- [X] T042 [US3] Create Asset model in common/models/asset.py (name, recorded_purchase_value DecimalField, conversion_at date, source_investment_id FK nullable, created_at, created_by FK nullable)
+- [X] T043 [US3] Create AssetShare model in common/models/asset_share.py (asset FK, member FK, share_percentage DecimalField, created_at; immutable)
+- [X] T044 [US3] Implement AssetConversionService in common/services/asset_service.py (record_asset: create Asset and AssetShare rows from agreed rule e.g. proportional to holdings at conversion)
+- [X] T045 [US3] Implement POST /admin/assets/ in common/views/admin_views.py (admin only; thin, call AssetConversionService)
+- [X] T046 [US3] Update PositionService in common/services/position_service.py to include assets_breakdown (AssetShare with recorded_purchase_value) in member position
+- [X] T047 [US3] Wire POST /admin/assets/ under /api/v1/admin/ in common/urls.py; add Asset, AssetShare to common/admin.py
 
 **Checkpoint**: User Story 3 complete — investment journey and asset conversion with fixed ownership; independently testable
 

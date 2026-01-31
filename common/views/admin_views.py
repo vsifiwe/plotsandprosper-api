@@ -14,6 +14,7 @@ from common.services.contribution_service import (
     record_contribution,
     record_penalty,
 )
+from common.services.asset_service import record_asset
 from common.services.investment_service import record_investment
 from common.models.reversal import ReversalRecordType
 
@@ -210,6 +211,49 @@ class InvestmentCreateView(APIView):
                     "recorded_at": inv.recorded_at.isoformat(),
                     "unit_value": str(inv.unit_value),
                     "total_units": str(inv.total_units) if inv.total_units else None,
+                },
+                status=status.HTTP_201_CREATED,
+            )
+        except ValueError as e:
+            return Response(
+                {"detail": str(e)},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+
+class AssetCreateView(APIView):
+    """POST /admin/assets/ — admin only, immutable."""
+
+    permission_classes = [IsAuthenticated, IsAdmin]
+
+    def post(self, request: Request):
+        """Record asset conversion; asset shares fixed at conversion."""
+        name = request.data.get("name")
+        recorded_purchase_value = request.data.get("recorded_purchase_value")
+        conversion_at = request.data.get("conversion_at")
+        source_investment_id = request.data.get("source_investment_id")
+        if not name or recorded_purchase_value is None or not conversion_at:
+            return Response(
+                {"detail": "name, recorded_purchase_value, conversion_at required"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        try:
+            asset = record_asset(
+                name=name,
+                recorded_purchase_value=recorded_purchase_value,
+                conversion_at=conversion_at,
+                source_investment_id=int(source_investment_id)
+                if source_investment_id is not None
+                else None,
+                created_by=request.user,
+            )
+            return Response(
+                {
+                    "id": asset.id,
+                    "name": asset.name,
+                    "recorded_purchase_value": str(asset.recorded_purchase_value),
+                    "conversion_at": asset.conversion_at.isoformat(),
+                    "source_investment_id": asset.source_investment_id,
                 },
                 status=status.HTTP_201_CREATED,
             )

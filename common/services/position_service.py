@@ -8,6 +8,7 @@ from decimal import Decimal
 from django.db.models import Sum
 
 from common.models import (
+    AssetShare,
     Contribution,
     HoldingShare,
     Member,
@@ -47,16 +48,26 @@ def _reversed_holding_share_ids():
     )
 
 
+def _reversed_asset_share_ids():
+    return set(
+        Reversal.objects.filter(
+            original_record_type=ReversalRecordType.ASSET_SHARE
+        ).values_list("original_record_id", flat=True)
+    )
+
+
 def get_member_position(member: Member) -> dict:
     """
     Return member's financial position: contributions total, penalties total,
     holdings_breakdown (HoldingShare × unit_value, excluding reversed),
-    assets_breakdown (empty for US2), exit_request (None), source_of_truth_disclaimer.
-    Excludes reversed contributions, penalties, holding shares.
+    assets_breakdown (AssetShare with recorded_purchase_value, excluding reversed),
+    exit_request (None), source_of_truth_disclaimer.
+    Excludes reversed contributions, penalties, holding shares, asset shares.
     """
     rev_contrib = _reversed_contribution_ids()
     rev_penalty = _reversed_penalty_ids()
     rev_holding = _reversed_holding_share_ids()
+    rev_asset_share = _reversed_asset_share_ids()
 
     contributions_total = Contribution.objects.filter(member=member).exclude(
         id__in=rev_contrib
@@ -81,11 +92,25 @@ def get_member_position(member: Member) -> dict:
             }
         )
 
+    assets_breakdown = []
+    for as_ in (
+        AssetShare.objects.filter(member=member)
+        .exclude(id__in=rev_asset_share)
+        .select_related("asset")
+    ):
+        assets_breakdown.append(
+            {
+                "asset_id": as_.asset_id,
+                "share_percentage": float(as_.share_percentage),
+                "recorded_purchase_value": float(as_.asset.recorded_purchase_value),
+            }
+        )
+
     return {
         "contributions_total": float(contributions_total),
         "penalties_total": float(penalties_total),
         "holdings_breakdown": holdings_breakdown,
-        "assets_breakdown": [],
+        "assets_breakdown": assets_breakdown,
         "exit_request": None,
         "source_of_truth_disclaimer": SOURCE_OF_TRUTH_DISCLAIMER,
     }

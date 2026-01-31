@@ -170,15 +170,15 @@
 
 ### Tests for User Story 5
 
-- [ ] T058 [P] [US5] Integration test for statement export and disclaimer in tests/integration/test_statement_transparency.py (GET /me/statement/, disclaimer in /me/position/, auditor 403 on POST admin)
+- [X] T058 [P] [US5] Integration test for statement export and disclaimer in tests/integration/test_statement_transparency.py (GET /me/statement/, disclaimer in /me/position/, auditor 403 on POST admin)
 
 ### Implementation for User Story 5
 
-- [ ] T059 [US5] Implement StatementService in common/services/statement_service.py (get_member_statement: historical contributions, penalties, investments, exits for date range; deterministic)
-- [ ] T060 [US5] Implement GET /me/statement/ in common/views/statement_views.py (query params from_date, to_date; return JSON; permission member own only)
-- [ ] T061 [US5] Add source_of_truth_disclaimer field to /me/position/ response in common/views/position_views.py and document in contracts/openapi.yaml
-- [ ] T062 [US5] Enforce auditor role read-only: ensure IsAuditorReadOnly denies POST/PUT/PATCH/DELETE on admin and write endpoints in common/permissions.py
-- [ ] T063 [US5] Wire GET /me/statement/ under /api/v1/ in common/urls.py
+- [X] T059 [US5] Implement StatementService in common/services/statement_service.py (get_member_statement: historical contributions, penalties, investments, exits for date range; deterministic)
+- [X] T060 [US5] Implement GET /me/statement/ in common/views/statement_views.py (query params from_date, to_date; return JSON; permission member own only)
+- [X] T061 [US5] Add source_of_truth_disclaimer field to /me/position/ response in common/views/position_views.py and document in contracts/openapi.yaml
+- [X] T062 [US5] Enforce auditor role read-only: ensure IsAuditorReadOnly denies POST/PUT/PATCH/DELETE on admin and write endpoints in common/permissions.py
+- [X] T063 [US5] Wire GET /me/statement/ under /api/v1/ in common/urls.py
 
 **Checkpoint**: User Story 5 complete — transparency, statement export, and auditor read-only; independently testable
 

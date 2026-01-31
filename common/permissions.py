@@ -36,6 +36,8 @@ class IsAdmin(permissions.BasePermission):
     """
     Administrator role: governed data entry and reconciliation.
     Can create contributions, penalties, investments, assets, exits, buy-outs, reversals.
+    Auditor role has no write access: admin and write endpoints use IsAdmin only,
+    so auditor (ADMIN not in roles) gets 403 on POST/PUT/PATCH/DELETE.
     """
 
     def has_permission(self, request, view):

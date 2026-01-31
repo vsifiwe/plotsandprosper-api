@@ -315,4 +315,6 @@ components:
             status: { type: string }
             queue_position: { type: integer }
             amount_entitled: { type: number }
-        source_of_truth_disclaimer: { type: string }
+        source_of_truth_disclaimer:
+          type: string
+          description: Disclaimer that external bank and investment records are the ultimate source of truth in disputes.

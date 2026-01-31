@@ -14,6 +14,7 @@ from .admin_views import (
 )
 from .group_views import GroupAggregatesView
 from .position_views import MemberPositionView
+from .statement_views import MemberStatementView
 from .test_view import test_view
 
 __all__ = [
@@ -25,6 +26,7 @@ __all__ = [
     "GroupAggregatesView",
     "InvestmentCreateView",
     "MemberPositionView",
+    "MemberStatementView",
     "PenaltyCreateView",
     "ReversalCreateView",
     "test_view",

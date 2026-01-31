@@ -11,6 +11,7 @@ from .views import (
     GroupAggregatesView,
     InvestmentCreateView,
     MemberPositionView,
+    MemberStatementView,
     PenaltyCreateView,
     ReversalCreateView,
     test_view,
@@ -20,6 +21,7 @@ urlpatterns = [
     path("auth/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("auth/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path("me/position/", MemberPositionView.as_view(), name="me_position"),
+    path("me/statement/", MemberStatementView.as_view(), name="me_statement"),
     path("group/aggregates/", GroupAggregatesView.as_view(), name="group_aggregates"),
     path(
         "admin/contribution-windows/",

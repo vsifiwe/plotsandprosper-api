@@ -144,19 +144,19 @@
 
 ### Tests for User Story 4 (REQUIRED for critical paths: exit queue, buy-out transfers)
 
-- [ ] T048 [P] [US4] Integration test for exit queue and buy-out in tests/integration/test_exit_buyout.py (create exit request, fulfill or queue; record buy-out; verify position and audit trail)
-- [ ] T049 [P] [US4] Contract test for POST /api/v1/admin/exit-requests/ and POST /api/v1/admin/buy-outs/ in tests/contract/test_admin_exit_buyout.py
+- [X] T048 [P] [US4] Integration test for exit queue and buy-out in tests/integration/test_exit_buyout.py (create exit request, fulfill or queue; record buy-out; verify position and audit trail)
+- [X] T049 [P] [US4] Contract test for POST /api/v1/admin/exit-requests/ and POST /api/v1/admin/buy-outs/ in tests/contract/test_admin_exit_buyout.py
 
 ### Implementation for User Story 4
 
-- [ ] T050 [US4] Create ExitRequest model in common/models/exit_request.py (member FK, requested_at, queue_position int, status, fulfilled_at nullable, amount_entitled DecimalField, created_at)
-- [ ] T051 [US4] Create BuyOut model in common/models/buy_out.py (seller FK, buyer FK nullable, nominal_valuation DecimalField, valuation_inputs JSONField or text, recorded_at, created_at, created_by FK nullable)
-- [ ] T052 [US4] Implement ExitRequestService in common/services/exit_service.py (create exit request, assign queue_position e.g. FIFO; optional: fulfill when liquidity)
-- [ ] T053 [US4] Implement BuyOutService in common/services/buyout_service.py (record buy-out, transfer ownership per policy; immutable)
-- [ ] T054 [US4] Implement GET and POST /admin/exit-requests/ in common/views/admin_views.py (admin only)
-- [ ] T055 [US4] Implement POST /admin/buy-outs/ in common/views/admin_views.py (admin only)
-- [ ] T056 [US4] Update PositionService in common/services/position_service.py to include exit_request (status, queue_position, amount_entitled) in member position
-- [ ] T057 [US4] Wire exit and buy-out endpoints under /api/v1/admin/ in common/urls.py; register ExitRequest, BuyOut in common/admin.py
+- [X] T050 [US4] Create ExitRequest model in common/models/exit_request.py (member FK, requested_at, queue_position int, status, fulfilled_at nullable, amount_entitled DecimalField, created_at)
+- [X] T051 [US4] Create BuyOut model in common/models/buy_out.py (seller FK, buyer FK nullable, nominal_valuation DecimalField, valuation_inputs JSONField or text, recorded_at, created_at, created_by FK nullable)
+- [X] T052 [US4] Implement ExitRequestService in common/services/exit_service.py (create exit request, assign queue_position e.g. FIFO; optional: fulfill when liquidity)
+- [X] T053 [US4] Implement BuyOutService in common/services/buyout_service.py (record buy-out, transfer ownership per policy; immutable)
+- [X] T054 [US4] Implement GET and POST /admin/exit-requests/ in common/views/admin_views.py (admin only)
+- [X] T055 [US4] Implement POST /admin/buy-outs/ in common/views/admin_views.py (admin only)
+- [X] T056 [US4] Update PositionService in common/services/position_service.py to include exit_request (status, queue_position, amount_entitled) in member position
+- [X] T057 [US4] Wire exit and buy-out endpoints under /api/v1/admin/ in common/urls.py; register ExitRequest, BuyOut in common/admin.py
 
 **Checkpoint**: User Story 4 complete — exit and buy-out paths with deterministic, auditable records; independently testable
 

@@ -4,8 +4,10 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from .views import (
     AssetCreateView,
+    BuyOutCreateView,
     ContributionCreateView,
     ContributionWindowListCreateView,
+    ExitRequestListCreateView,
     GroupAggregatesView,
     InvestmentCreateView,
     MemberPositionView,
@@ -48,6 +50,16 @@ urlpatterns = [
         "admin/reversals/",
         ReversalCreateView.as_view(),
         name="admin_reversals",
+    ),
+    path(
+        "admin/exit-requests/",
+        ExitRequestListCreateView.as_view(),
+        name="admin_exit_requests",
+    ),
+    path(
+        "admin/buy-outs/",
+        BuyOutCreateView.as_view(),
+        name="admin_buy_outs",
     ),
     path("test/", test_view, name="test"),
 ]

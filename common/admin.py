@@ -7,8 +7,10 @@ from django.contrib import admin
 from .models import (
     Asset,
     AssetShare,
+    BuyOut,
     Contribution,
     ContributionWindow,
+    ExitRequest,
     HoldingShare,
     Investment,
     Member,
@@ -136,3 +138,42 @@ class ReversalAdmin(admin.ModelAdmin):
     search_fields = ["reason"]
     readonly_fields = ["created_at"]
     ordering = ["-created_at"]
+
+
+@admin.register(ExitRequest)
+class ExitRequestAdmin(admin.ModelAdmin):
+    """Exit request — queue and status."""
+
+    list_display = [
+        "id",
+        "member",
+        "queue_position",
+        "status",
+        "amount_entitled",
+        "requested_at",
+        "fulfilled_at",
+    ]
+    list_filter = ["status"]
+    search_fields = ["member__email"]
+    readonly_fields = ["created_at"]
+    ordering = ["queue_position", "-requested_at"]
+    raw_id_fields = ["member"]
+
+
+@admin.register(BuyOut)
+class BuyOutAdmin(admin.ModelAdmin):
+    """Buy out — immutable."""
+
+    list_display = [
+        "id",
+        "seller",
+        "buyer",
+        "nominal_valuation",
+        "recorded_at",
+        "created_at",
+    ]
+    list_filter = ["recorded_at"]
+    search_fields = ["seller__email", "buyer__email"]
+    readonly_fields = ["created_at"]
+    ordering = ["-recorded_at"]
+    raw_id_fields = ["seller", "buyer", "created_by"]

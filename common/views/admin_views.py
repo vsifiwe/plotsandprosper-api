@@ -1,5 +1,6 @@
 """
-Admin-only views: contribution windows, contributions, penalties, investments, reversals.
+Admin-only views: contribution windows, contributions, penalties, investments,
+assets, reversals, exit-requests, buy-outs.
 """
 
 from rest_framework import status
@@ -10,12 +11,14 @@ from rest_framework.views import APIView
 
 from common.models import ContributionWindow, Member, Reversal
 from common.permissions import IsAdmin
+from common.services.asset_service import record_asset
 from common.services.contribution_service import (
     record_contribution,
     record_penalty,
 )
-from common.services.asset_service import record_asset
+from common.services.exit_service import create_exit_request
 from common.services.investment_service import record_investment
+from common.services.buyout_service import record_buyout
 from common.models.reversal import ReversalRecordType
 
 
@@ -302,3 +305,108 @@ class ReversalCreateView(APIView):
             },
             status=status.HTTP_201_CREATED,
         )
+
+
+class ExitRequestListCreateView(APIView):
+    """GET and POST /admin/exit-requests/ — admin only."""
+
+    permission_classes = [IsAuthenticated, IsAdmin]
+
+    def get(self, request: Request):
+        """List exit queue (all exit requests, ordered by queue_position)."""
+        from common.models import ExitRequest
+
+        requests = ExitRequest.objects.all().order_by("queue_position", "-requested_at")[
+            :100
+        ]
+        data = [
+            {
+                "id": r.id,
+                "member_id": r.member_id,
+                "requested_at": r.requested_at.isoformat(),
+                "queue_position": r.queue_position,
+                "status": r.status,
+                "fulfilled_at": r.fulfilled_at.isoformat() if r.fulfilled_at else None,
+                "amount_entitled": str(r.amount_entitled),
+                "created_at": r.created_at.isoformat(),
+            }
+            for r in requests
+        ]
+        return Response(data)
+
+    def post(self, request: Request):
+        """Create exit request; queue position assigned FIFO."""
+        member_id = request.data.get("member_id")
+        if member_id is None:
+            return Response(
+                {"detail": "member_id required"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        try:
+            req = create_exit_request(member_id=int(member_id))
+            return Response(
+                {
+                    "id": req.id,
+                    "member_id": req.member_id,
+                    "requested_at": req.requested_at.isoformat(),
+                    "queue_position": req.queue_position,
+                    "status": req.status,
+                    "fulfilled_at": req.fulfilled_at.isoformat() if req.fulfilled_at else None,
+                    "amount_entitled": str(req.amount_entitled),
+                    "created_at": req.created_at.isoformat(),
+                },
+                status=status.HTTP_201_CREATED,
+            )
+        except Member.DoesNotExist:
+            return Response(
+                {"detail": "Member not found"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+
+class BuyOutCreateView(APIView):
+    """POST /admin/buy-outs/ — admin only, immutable."""
+
+    permission_classes = [IsAuthenticated, IsAdmin]
+
+    def post(self, request: Request):
+        """Record buy-out (seller, optional buyer, nominal valuation)."""
+        seller_id = request.data.get("seller_id")
+        buyer_id = request.data.get("buyer_id")
+        nominal_valuation = request.data.get("nominal_valuation")
+        valuation_inputs = request.data.get("valuation_inputs")
+        recorded_at = request.data.get("recorded_at")
+        if seller_id is None or nominal_valuation is None:
+            return Response(
+                {"detail": "seller_id, nominal_valuation required"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        try:
+            from django.utils.dateparse import parse_datetime
+
+            rec_at = parse_datetime(recorded_at) if recorded_at else None
+            buyout = record_buyout(
+                seller_id=int(seller_id),
+                nominal_valuation=nominal_valuation,
+                buyer_id=int(buyer_id) if buyer_id is not None else None,
+                valuation_inputs=valuation_inputs,
+                recorded_at=rec_at,
+                created_by=request.user,
+            )
+            return Response(
+                {
+                    "id": buyout.id,
+                    "seller_id": buyout.seller_id,
+                    "buyer_id": buyout.buyer_id,
+                    "nominal_valuation": str(buyout.nominal_valuation),
+                    "valuation_inputs": buyout.valuation_inputs,
+                    "recorded_at": buyout.recorded_at.isoformat(),
+                    "created_at": buyout.created_at.isoformat(),
+                },
+                status=status.HTTP_201_CREATED,
+            )
+        except Member.DoesNotExist:
+            return Response(
+                {"detail": "Member (seller or buyer) not found"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )

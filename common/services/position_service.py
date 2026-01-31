@@ -10,6 +10,7 @@ from django.db.models import Sum
 from common.models import (
     AssetShare,
     Contribution,
+    ExitRequest,
     HoldingShare,
     Member,
     Penalty,
@@ -52,6 +53,14 @@ def _reversed_asset_share_ids():
     return set(
         Reversal.objects.filter(
             original_record_type=ReversalRecordType.ASSET_SHARE
+        ).values_list("original_record_id", flat=True)
+    )
+
+
+def _reversed_exit_request_ids():
+    return set(
+        Reversal.objects.filter(
+            original_record_type=ReversalRecordType.EXIT_REQUEST
         ).values_list("original_record_id", flat=True)
     )
 
@@ -106,12 +115,27 @@ def get_member_position(member: Member) -> dict:
             }
         )
 
+    rev_exit = _reversed_exit_request_ids()
+    exit_request = None
+    latest_exit = (
+        ExitRequest.objects.filter(member=member)
+        .exclude(id__in=rev_exit)
+        .order_by("-requested_at")
+        .first()
+    )
+    if latest_exit is not None:
+        exit_request = {
+            "status": latest_exit.status,
+            "queue_position": latest_exit.queue_position,
+            "amount_entitled": float(latest_exit.amount_entitled),
+        }
+
     return {
         "contributions_total": float(contributions_total),
         "penalties_total": float(penalties_total),
         "holdings_breakdown": holdings_breakdown,
         "assets_breakdown": assets_breakdown,
-        "exit_request": None,
+        "exit_request": exit_request,
         "source_of_truth_disclaimer": SOURCE_OF_TRUTH_DISCLAIMER,
     }
 

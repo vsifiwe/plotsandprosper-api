@@ -64,19 +64,19 @@
 
 ### Tests for User Story 1 (REQUIRED for critical path: position view)
 
-- [ ] T016 [P] [US1] Integration test for member position in tests/integration/test_member_position.py (authenticated member GET /me/position/, GET /group/aggregates/, RBAC)
-- [ ] T017 [P] [US1] Contract test for GET /api/v1/me/position/ in tests/contract/test_me_position.py (response schema, 403 when unauthenticated)
+- [X] T016 [P] [US1] Integration test for member position in tests/integration/test_member_position.py (authenticated member GET /me/position/, GET /group/aggregates/, RBAC)
+- [X] T017 [P] [US1] Contract test for GET /api/v1/me/position/ in tests/contract/test_me_position.py (response schema, 403 when unauthenticated)
 
 ### Implementation for User Story 1
 
-- [ ] T018 [US1] Create ContributionWindow model in common/models/contribution_window.py (start_at, end_at, min_amount, max_amount, name; decimal for amounts)
-- [ ] T019 [US1] Create Contribution model in common/models/contribution.py (member FK, window FK, amount DecimalField(max_digits=20, decimal_places=4), recorded_at, created_at; immutable)
-- [ ] T020 [US1] Create Penalty model in common/models/penalty.py (member FK, amount DecimalField, reason, window_id nullable, recorded_at, created_at; immutable)
-- [ ] T021 [US1] Implement PositionService in common/services/position_service.py (get_member_position: aggregate contributions and penalties for member; get_group_aggregates: total members, total pool)
-- [ ] T022 [US1] Implement GET /me/position/ in common/views/position_views.py (thin: call PositionService, return JSON with source_of_truth_disclaimer)
-- [ ] T023 [US1] Implement GET /group/aggregates/ in common/views/group_views.py (thin: call PositionService.get_group_aggregates)
-- [ ] T024 [US1] Wire /me/position/ and /group/aggregates/ under /api/v1/ in common/urls.py with permission IsMemberReadOwnAndAggregates
-- [ ] T025 [US1] Register Contribution, Penalty, ContributionWindow in common/admin.py (read-only or minimal create for data entry)
+- [X] T018 [US1] Create ContributionWindow model in common/models/contribution_window.py (start_at, end_at, min_amount, max_amount, name; decimal for amounts)
+- [X] T019 [US1] Create Contribution model in common/models/contribution.py (member FK, window FK, amount DecimalField(max_digits=20, decimal_places=4), recorded_at, created_at; immutable)
+- [X] T020 [US1] Create Penalty model in common/models/penalty.py (member FK, amount DecimalField, reason, window_id nullable, recorded_at, created_at; immutable)
+- [X] T021 [US1] Implement PositionService in common/services/position_service.py (get_member_position: aggregate contributions and penalties for member; get_group_aggregates: total members, total pool)
+- [X] T022 [US1] Implement GET /me/position/ in common/views/position_views.py (thin: call PositionService, return JSON with source_of_truth_disclaimer)
+- [X] T023 [US1] Implement GET /group/aggregates/ in common/views/group_views.py (thin: call PositionService.get_group_aggregates)
+- [X] T024 [US1] Wire /me/position/ and /group/aggregates/ under /api/v1/ in common/urls.py with permission IsMemberReadOwnAndAggregates
+- [X] T025 [US1] Register Contribution, Penalty, ContributionWindow in common/admin.py (read-only or minimal create for data entry)
 
 **Checkpoint**: User Story 1 complete — member can view position (contributions, penalties) and group aggregates; independently testable
 

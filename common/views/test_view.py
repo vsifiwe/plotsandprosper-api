@@ -1,4 +1,4 @@
-# common/views.py
+# common/views/test_view.py
 
 from rest_framework.response import Response
 

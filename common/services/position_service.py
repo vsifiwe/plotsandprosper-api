@@ -1,12 +1,20 @@
 """
 PositionService — aggregate member position and group aggregates from ledger.
-US1: contributions and penalties only; holdings/assets/exit added in later stories.
+Excludes reversed records; includes holdings (HoldingShare × unit_value).
 """
+
 from decimal import Decimal
 
 from django.db.models import Sum
 
-from common.models import Contribution, Member, Penalty
+from common.models import (
+    Contribution,
+    HoldingShare,
+    Member,
+    Penalty,
+    Reversal,
+)
+from common.models.reversal import ReversalRecordType
 
 
 # Source-of-truth disclaimer per constitution/spec
@@ -15,26 +23,68 @@ SOURCE_OF_TRUTH_DISCLAIMER = (
 )
 
 
+def _reversed_contribution_ids():
+    return set(
+        Reversal.objects.filter(
+            original_record_type=ReversalRecordType.CONTRIBUTION
+        ).values_list("original_record_id", flat=True)
+    )
+
+
+def _reversed_penalty_ids():
+    return set(
+        Reversal.objects.filter(
+            original_record_type=ReversalRecordType.PENALTY
+        ).values_list("original_record_id", flat=True)
+    )
+
+
+def _reversed_holding_share_ids():
+    return set(
+        Reversal.objects.filter(
+            original_record_type=ReversalRecordType.HOLDING_SHARE
+        ).values_list("original_record_id", flat=True)
+    )
+
+
 def get_member_position(member: Member) -> dict:
     """
     Return member's financial position: contributions total, penalties total,
-    holdings_breakdown (empty for US1), assets_breakdown (empty for US1),
-    exit_request (None for US1), source_of_truth_disclaimer.
+    holdings_breakdown (HoldingShare × unit_value, excluding reversed),
+    assets_breakdown (empty for US2), exit_request (None), source_of_truth_disclaimer.
+    Excludes reversed contributions, penalties, holding shares.
     """
-    contrib_agg = Contribution.objects.filter(member=member).aggregate(
-        total=Sum("amount")
-    )
-    contributions_total = contrib_agg["total"] or Decimal("0")
+    rev_contrib = _reversed_contribution_ids()
+    rev_penalty = _reversed_penalty_ids()
+    rev_holding = _reversed_holding_share_ids()
 
-    penalty_agg = Penalty.objects.filter(member=member).aggregate(
-        total=Sum("amount")
-    )
-    penalties_total = penalty_agg["total"] or Decimal("0")
+    contributions_total = Contribution.objects.filter(member=member).exclude(
+        id__in=rev_contrib
+    ).aggregate(total=Sum("amount"))["total"] or Decimal("0")
+
+    penalties_total = Penalty.objects.filter(member=member).exclude(
+        id__in=rev_penalty
+    ).aggregate(total=Sum("amount"))["total"] or Decimal("0")
+
+    holdings_breakdown = []
+    for hs in (
+        HoldingShare.objects.filter(member=member)
+        .exclude(id__in=rev_holding)
+        .select_related("investment")
+    ):
+        holdings_breakdown.append(
+            {
+                "investment_id": hs.investment_id,
+                "units": float(hs.units),
+                "unit_value": float(hs.investment.unit_value),
+                "recorded_at": hs.investment.recorded_at.isoformat(),
+            }
+        )
 
     return {
         "contributions_total": float(contributions_total),
         "penalties_total": float(penalties_total),
-        "holdings_breakdown": [],
+        "holdings_breakdown": holdings_breakdown,
         "assets_breakdown": [],
         "exit_request": None,
         "source_of_truth_disclaimer": SOURCE_OF_TRUTH_DISCLAIMER,
@@ -43,15 +93,14 @@ def get_member_position(member: Member) -> dict:
 
 def get_group_aggregates() -> dict:
     """
-    Return group-level aggregates: total_members, total_pool (sum of all contributions).
-    No per-member data.
+    Return group-level aggregates: total_members, total_pool (sum of non-reversed contributions).
     """
-
+    rev_contrib = _reversed_contribution_ids()
     total_members = Member.objects.count()
-    pool_agg = Contribution.objects.aggregate(total=Sum("amount"))
-    total_pool = float(pool_agg["total"] or Decimal("0"))
-
+    total_pool = Contribution.objects.exclude(id__in=rev_contrib).aggregate(
+        total=Sum("amount")
+    )["total"] or Decimal("0")
     return {
         "total_members": total_members,
-        "total_pool": total_pool,
+        "total_pool": float(total_pool),
     }

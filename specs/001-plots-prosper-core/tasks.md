@@ -90,24 +90,24 @@
 
 ### Tests for User Story 2 (REQUIRED for critical paths: contribution window, penalties, NAV application)
 
-- [ ] T026 [P] [US2] Integration test for contribution flow in tests/integration/test_contribution_flow.py (record contribution, penalty, investment; verify position and no edit/delete)
-- [ ] T027 [P] [US2] Contract test for POST /api/v1/admin/contributions/ and POST /api/v1/admin/penalties/ in tests/contract/test_admin_contributions.py
-- [ ] T028 [P] [US2] Contract test for POST /api/v1/admin/investments/ in tests/contract/test_admin_investments.py
+- [X] T026 [P] [US2] Integration test for contribution flow in tests/integration/test_contribution_flow.py (record contribution, penalty, investment; verify position and no edit/delete)
+- [X] T027 [P] [US2] Contract test for POST /api/v1/admin/contributions/ and POST /api/v1/admin/penalties/ in tests/contract/test_admin_contributions.py
+- [X] T028 [P] [US2] Contract test for POST /api/v1/admin/investments/ in tests/contract/test_admin_investments.py
 
 ### Implementation for User Story 2
 
-- [ ] T029 [US2] Create Investment model in common/models/investment.py (recorded_at date, unit_value DecimalField, total_units nullable, created_at, created_by FK nullable)
-- [ ] T030 [US2] Create HoldingShare model in common/models/holding_share.py (investment FK, member FK, units DecimalField, created_at; immutable)
-- [ ] T031 [US2] Create Reversal model in common/models/reversal.py (original_record_type, original_record_id, reason nullable, created_at, created_by FK nullable)
-- [ ] T032 [US2] Implement ContributionRecordingService in common/services/contribution_service.py (record_contribution, record_penalty; validate window and boundaries)
-- [ ] T033 [US2] Implement InvestmentRecordingService in common/services/investment_service.py (record_investment: compute member shares from eligible savings at that date, create HoldingShare rows)
-- [ ] T034 [US2] Implement GET and POST /admin/contribution-windows/ in common/views/admin_views.py (admin only)
-- [ ] T035 [US2] Implement POST /admin/contributions/ and POST /admin/penalties/ in common/views/admin_views.py (admin only; thin, call services)
-- [ ] T036 [US2] Implement POST /admin/investments/ in common/views/admin_views.py (admin only; thin, call InvestmentRecordingService)
-- [ ] T037 [US2] Implement POST /admin/reversals/ in common/views/admin_views.py (admin only; create Reversal record only)
-- [ ] T038 [US2] Update PositionService in common/services/position_service.py to include holdings (HoldingShare × unit_value) in member position
-- [ ] T039 [US2] Exclude reversed records in PositionService and ContributionRecordingService (aggregate only non-reversed contributions/penalties/holdings)
-- [ ] T040 [US2] Wire admin endpoints under /api/v1/admin/ in common/urls.py with IsAdmin permission
+- [X] T029 [US2] Create Investment model in common/models/investment.py (recorded_at date, unit_value DecimalField, total_units nullable, created_at, created_by FK nullable)
+- [X] T030 [US2] Create HoldingShare model in common/models/holding_share.py (investment FK, member FK, units DecimalField, created_at; immutable)
+- [X] T031 [US2] Create Reversal model in common/models/reversal.py (original_record_type, original_record_id, reason nullable, created_at, created_by FK nullable)
+- [X] T032 [US2] Implement ContributionRecordingService in common/services/contribution_service.py (record_contribution, record_penalty; validate window and boundaries)
+- [X] T033 [US2] Implement InvestmentRecordingService in common/services/investment_service.py (record_investment: compute member shares from eligible savings at that date, create HoldingShare rows)
+- [X] T034 [US2] Implement GET and POST /admin/contribution-windows/ in common/views/admin_views.py (admin only)
+- [X] T035 [US2] Implement POST /admin/contributions/ and POST /admin/penalties/ in common/views/admin_views.py (admin only; thin, call services)
+- [X] T036 [US2] Implement POST /admin/investments/ in common/views/admin_views.py (admin only; thin, call InvestmentRecordingService)
+- [X] T037 [US2] Implement POST /admin/reversals/ in common/views/admin_views.py (admin only; create Reversal record only)
+- [X] T038 [US2] Update PositionService in common/services/position_service.py to include holdings (HoldingShare × unit_value) in member position
+- [X] T039 [US2] Exclude reversed records in PositionService and ContributionRecordingService (aggregate only non-reversed contributions/penalties/holdings)
+- [X] T040 [US2] Wire admin endpoints under /api/v1/admin/ in common/urls.py with IsAdmin permission
 
 **Checkpoint**: User Story 2 complete — contribution process, penalties separate, investment at value, reversal-only corrections; independently testable
 

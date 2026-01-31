@@ -4,7 +4,15 @@ common/admin.py
 
 from django.contrib import admin
 
-from .models import Contribution, ContributionWindow, Member, Penalty
+from .models import (
+    Contribution,
+    ContributionWindow,
+    HoldingShare,
+    Investment,
+    Member,
+    Penalty,
+    Reversal,
+)
 
 
 @admin.register(Member)
@@ -63,3 +71,36 @@ class PenaltyAdmin(admin.ModelAdmin):
     readonly_fields = ["created_at"]
     ordering = ["-recorded_at"]
     raw_id_fields = ["member", "window"]
+
+
+@admin.register(Investment)
+class InvestmentAdmin(admin.ModelAdmin):
+    """Investment — immutable."""
+
+    list_display = ["id", "recorded_at", "unit_value", "total_units", "created_at"]
+    list_filter = ["recorded_at"]
+    readonly_fields = ["created_at"]
+    ordering = ["-recorded_at"]
+
+
+@admin.register(HoldingShare)
+class HoldingShareAdmin(admin.ModelAdmin):
+    """Holding share — immutable."""
+
+    list_display = ["investment", "member", "units", "created_at"]
+    list_filter = ["investment"]
+    search_fields = ["member__email"]
+    readonly_fields = ["created_at"]
+    ordering = ["-created_at"]
+    raw_id_fields = ["investment", "member"]
+
+
+@admin.register(Reversal)
+class ReversalAdmin(admin.ModelAdmin):
+    """Reversal — audit trail only."""
+
+    list_display = ["original_record_type", "original_record_id", "reason", "created_at"]
+    list_filter = ["original_record_type"]
+    search_fields = ["reason"]
+    readonly_fields = ["created_at"]
+    ordering = ["-created_at"]

@@ -36,14 +36,16 @@
    python manage.py runserver
    ```
    - API base: `http://127.0.0.1:8000/api/v1/`
-   - OpenAPI schema: `http://127.0.0.1:8000/api/schema/` (if drf-spectacular is configured).
+   - OpenAPI schema (drf-spectacular): `http://127.0.0.1:8000/api/schema/` (YAML)
+   - Swagger UI: `http://127.0.0.1:8000/api/schema/swagger-ui/`
+   - ReDoc: `http://127.0.0.1:8000/api/schema/redoc/`
 
-6. **Tests**
+6. **Tests and lint**
    ```bash
    pytest
-   # or
-   python manage.py test
+   ruff check .
    ```
+   Or: `python manage.py test` for Django test runner.
 
 ## Docker
 
@@ -68,3 +70,28 @@
 
 - After implementation, run tests for critical paths (contribution windows, penalties, NAV application, asset conversion, exit queue, buy-out).
 - Confirm member position is reproducible from ledger (contributions, penalties, holdings, assets, exits, buy-outs).
+
+## Final run/test steps
+
+1. From repo root: `pip install -r requirements.txt` (if not already).
+2. `python manage.py migrate`
+3. `pytest` — run full test suite (unit, integration, contract).
+4. `ruff check .` — lint (api, common, tests).
+5. Optional: `python manage.py spectacular --file /tmp/schema.yaml` to export OpenAPI; compare with `specs/001-plots-prosper-core/contracts/openapi.yaml` for drift (see Schema drift below).
+
+## Schema drift (T067)
+
+To generate the live OpenAPI schema from drf-spectacular and compare to the contract:
+
+```bash
+python manage.py spectacular --file /tmp/generated-schema.yaml
+diff specs/001-plots-prosper-core/contracts/openapi.yaml /tmp/generated-schema.yaml
+```
+
+Document any intentional drift (e.g. extra endpoints or schema extensions) in `specs/001-plots-prosper-core/contracts/` or in this quickstart. The contract `openapi.yaml` is the versioned API reference for frontend integration.
+
+## Security (T066)
+
+- **JWT**: Access token lifetime 60 minutes, refresh 7 days (configurable via `SIMPLE_JWT_*` in settings or env).
+- **RBAC**: All financial endpoints use `IsAuthenticated` plus `IsAdmin` (admin/write) or `IsMemberReadOwnAndAggregates` (member read own + aggregates). Auditor has no write access.
+- **Logging**: Default formatters do not include request bodies or PII; ensure custom loggers do not log passwords, tokens, or full request payloads.

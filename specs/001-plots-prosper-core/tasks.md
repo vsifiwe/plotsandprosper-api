@@ -188,10 +188,10 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T064 [P] Update specs/001-plots-prosper-core/quickstart.md with final run/test steps and OpenAPI schema URL
-- [ ] T065 Run full test suite (pytest or python manage.py test) and fix any failures
-- [ ] T066 Security pass: ensure no PII in logs, JWT expiry and refresh configured, RBAC applied to all financial endpoints
-- [ ] T067 Generate OpenAPI schema from drf-spectacular and compare to specs/001-plots-prosper-core/contracts/openapi.yaml; document any drift
+- [X] T064 [P] Update specs/001-plots-prosper-core/quickstart.md with final run/test steps and OpenAPI schema URL
+- [X] T065 Run full test suite (pytest or python manage.py test) and fix any failures
+- [X] T066 Security pass: ensure no PII in logs, JWT expiry and refresh configured, RBAC applied to all financial endpoints
+- [X] T067 Generate OpenAPI schema from drf-spectacular and compare to specs/001-plots-prosper-core/contracts/openapi.yaml; document any drift
 
 ---
 

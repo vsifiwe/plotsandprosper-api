@@ -154,7 +154,7 @@ SIMPLE_JWT = {
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
 }
 
-# Logging
+# Logging (T066: do not log PII — no request bodies, passwords, or tokens in formatters)
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,

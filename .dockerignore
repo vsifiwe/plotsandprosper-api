@@ -1,0 +1,23 @@
+# Plots & Prosper backend — Docker build context
+.git
+.gitignore
+.venv
+venv
+env
+__pycache__
+*.pyc
+*.pyo
+.pytest_cache
+.coverage
+htmlcov
+.tox
+.nox
+*.log
+.env
+.env.local
+*.md
+specs
+.cursor
+.specify
+.idea
+.vscode

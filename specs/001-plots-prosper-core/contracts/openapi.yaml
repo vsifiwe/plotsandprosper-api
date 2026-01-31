@@ -1,0 +1,320 @@
+openapi: 3.0.3
+info:
+  title: Plots & Prosper Backend API
+  description: |
+    Versioned API for the Plots & Prosper savings and investment group backend.
+    All financial records are immutable; corrections only via reversal records.
+    External bank and investment records are the ultimate source of truth in disputes.
+  version: 1.0.0
+
+servers:
+  - url: /api/v1
+    description: API v1
+
+security:
+  - BearerAuth: []
+
+paths:
+  /auth/token/:
+    post:
+      summary: Obtain JWT token
+      tags: [Auth]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password]
+              properties:
+                username: { type: string }
+                password: { type: string, format: password }
+      responses:
+        '200':
+          description: Token pair (access, refresh)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access: { type: string }
+                  refresh: { type: string }
+      security: []
+
+  /auth/token/refresh/:
+    post:
+      summary: Refresh access token
+      tags: [Auth]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [refresh]
+              properties:
+                refresh: { type: string }
+      responses:
+        '200':
+          description: New access token
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access: { type: string }
+      security: []
+
+  /me/position/:
+    get:
+      summary: Member's own financial position (P1)
+      tags: [Member]
+      description: |
+        Returns contribution history (savings + penalties), holdings share,
+        asset share, exit/buy-out status. Member sees only own data + group aggregates.
+      responses:
+        '200':
+          description: Position summary and breakdown
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MemberPosition'
+        '403':
+          description: Forbidden
+
+  /me/statement/:
+    get:
+      summary: Export member's historical statement (FR-012)
+      tags: [Member]
+      description: Consistent, historical record for comparison with external records.
+      parameters:
+        - name: from_date
+          in: query
+          schema: { type: string, format: date }
+        - name: to_date
+          in: query
+          schema: { type: string, format: date }
+      responses:
+        '200':
+          description: Statement (e.g. JSON or PDF per Accept)
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Contributions, penalties, investments, exits
+        '403':
+          description: Forbidden
+
+  /group/aggregates/:
+    get:
+      summary: Group-level aggregates (member view)
+      tags: [Member]
+      description: Total pool, total members, etc. No other members' individual data.
+      responses:
+        '200':
+          description: Aggregates
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_members: { type: integer }
+                  total_pool: { type: number, format: decimal }
+                  # policy-driven fields
+        '403':
+          description: Forbidden
+
+  /admin/contribution-windows/:
+    get:
+      summary: List contribution windows (admin)
+      tags: [Admin]
+    post:
+      summary: Create contribution window (admin)
+      tags: [Admin]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                start_at: { type: string, format: date-time }
+                end_at: { type: string, format: date-time }
+                min_amount: { type: number }
+                max_amount: { type: number, nullable: true }
+      responses:
+        '201':
+          description: Created
+
+  /admin/contributions/:
+    post:
+      summary: Record contribution (admin) — immutable
+      tags: [Admin]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [member_id, window_id, amount]
+              properties:
+                member_id: { type: integer }
+                window_id: { type: integer }
+                amount: { type: number, format: decimal }
+                recorded_at: { type: string, format: date-time }
+      responses:
+        '201':
+          description: Created (no update/delete)
+        '400':
+          description: Validation error
+
+  /admin/penalties/:
+    post:
+      summary: Record penalty / late fee (admin) — immutable
+      tags: [Admin]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [member_id, amount]
+              properties:
+                member_id: { type: integer }
+                amount: { type: number, format: decimal }
+                reason: { type: string }
+                window_id: { type: integer, nullable: true }
+      responses:
+        '201':
+          description: Created
+
+  /admin/investments/:
+    post:
+      summary: Record investment event with value at moment (admin) — immutable
+      tags: [Admin]
+      description: Records date and unit value; member shares computed and stored (HoldingShare).
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [recorded_at, unit_value]
+              properties:
+                recorded_at: { type: string, format: date }
+                unit_value: { type: number, format: decimal }
+                total_units: { type: number, nullable: true }
+      responses:
+        '201':
+          description: Created; holding shares created per policy
+
+  /admin/assets/:
+    post:
+      summary: Record asset conversion (admin) — immutable
+      tags: [Admin]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, recorded_purchase_value, conversion_at]
+              properties:
+                name: { type: string }
+                recorded_purchase_value: { type: number, format: decimal }
+                conversion_at: { type: string, format: date }
+                source_investment_id: { type: integer, nullable: true }
+      responses:
+        '201':
+          description: Created; asset shares fixed at conversion
+
+  /admin/exit-requests/:
+    get:
+      summary: List exit queue (admin)
+      tags: [Admin]
+    post:
+      summary: Create exit request (admin or member per policy)
+      tags: [Admin]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [member_id]
+              properties:
+                member_id: { type: integer }
+      responses:
+        '201':
+          description: Created; queue position assigned
+
+  /admin/buy-outs/:
+    post:
+      summary: Record buy-out (admin) — immutable
+      tags: [Admin]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [seller_id, nominal_valuation]
+              properties:
+                seller_id: { type: integer }
+                buyer_id: { type: integer, nullable: true }
+                nominal_valuation: { type: number, format: decimal }
+                valuation_inputs: { type: object }
+      responses:
+        '201':
+          description: Created; ownership transfer recorded
+
+  /admin/reversals/:
+    post:
+      summary: Create reversal record (admin) — only way to correct
+      tags: [Admin]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [original_record_type, original_record_id]
+              properties:
+                original_record_type: { type: string, enum: [contribution, penalty, holding_share, asset_share, exit_request, buy_out] }
+                original_record_id: { type: integer }
+                reason: { type: string }
+      responses:
+        '201':
+          description: Reversal created; original unchanged
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    MemberPosition:
+      type: object
+      description: Member's own financial position (P1)
+      properties:
+        contributions_total: { type: number, format: decimal }
+        penalties_total: { type: number, format: decimal }
+        holdings_breakdown:
+          type: array
+          items:
+            type: object
+            properties:
+              investment_id: { type: integer }
+              units: { type: number }
+              unit_value: { type: number }
+              recorded_at: { type: string, format: date }
+        assets_breakdown:
+          type: array
+          items:
+            type: object
+            properties:
+              asset_id: { type: integer }
+              share_percentage: { type: number }
+              recorded_purchase_value: { type: number }
+        exit_request:
+          type: object
+          nullable: true
+          properties:
+            status: { type: string }
+            queue_position: { type: integer }
+            amount_entitled: { type: number }
+        source_of_truth_disclaimer:
+          type: string
+          description: Disclaimer that external bank and investment records are the ultimate source of truth in disputes.

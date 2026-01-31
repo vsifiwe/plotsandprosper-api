@@ -1,0 +1,39 @@
+# Plots & Prosper backend — app + PostgreSQL 16
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: plots_prosper
+      POSTGRES_USER: plots_prosper
+      POSTGRES_PASSWORD: plots_prosper
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U plots_prosper"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      DB_NAME: plots_prosper
+      DB_USER: plots_prosper
+      DB_PASSWORD: plots_prosper
+      DB_HOST: db
+      DB_PORT: 5432
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:

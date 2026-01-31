@@ -1,0 +1,23 @@
+[project]
+name = "plots-prosper-backend"
+version = "0.1.0"
+description = "Plots & Prosper backend API"
+requires-python = ">=3.12"
+
+[tool.ruff]
+target-version = "py312"
+line-length = 88
+src = ["api", "common", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP"]
+ignore = []
+
+[tool.ruff.lint.isort]
+known-first-party = ["api", "common"]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "api.settings"
+pythonpath = ["."]
+addopts = "-v --tb=short"
+testpaths = ["tests"]

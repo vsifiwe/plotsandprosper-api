@@ -30,7 +30,7 @@ paths:
                 password: { type: string, format: password }
       responses:
         '200':
-          description: Token pair (access, refresh)
+          description: Token pair (access, refresh) and user (name, roles)
           content:
             application/json:
               schema:
@@ -38,6 +38,14 @@ paths:
                 properties:
                   access: { type: string }
                   refresh: { type: string }
+                  user:
+                    type: object
+                    properties:
+                      name: { type: string, description: Display name (firstName lastName) or username }
+                      roles:
+                        type: array
+                        items: { type: string, enum: [MEMBER, ADMIN, AUDITOR] }
+                        description: Member roles
       security: []
 
   /auth/token/refresh/:

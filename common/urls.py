@@ -1,8 +1,9 @@
 # common/urls.py — API v1 routes
 from django.urls import path
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from rest_framework_simplejwt.views import TokenRefreshView
 
 from .views import (
+    CustomTokenObtainPairView,
     AssetCreateView,
     BuyOutCreateView,
     ContributionCreateView,
@@ -18,7 +19,7 @@ from .views import (
 )
 
 urlpatterns = [
-    path("auth/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
+    path("auth/token/", CustomTokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("auth/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path("me/position/", MemberPositionView.as_view(), name="me_position"),
     path("me/statement/", MemberStatementView.as_view(), name="me_statement"),

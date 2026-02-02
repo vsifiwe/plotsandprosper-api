@@ -1,10 +1,15 @@
 """
 Contract tests for auth endpoints (OpenAPI: /auth/token/, /auth/token/refresh/).
 """
+from datetime import date
+
 import pytest
 from django.contrib.auth import get_user_model
 from rest_framework import status
 from rest_framework.test import APIClient
+
+from common.models import Member
+from common.models.member import MemberRole
 
 User = get_user_model()
 
@@ -34,6 +39,35 @@ class TestAuthToken:
         assert isinstance(data["refresh"], str)
         assert len(data["access"]) > 0
         assert len(data["refresh"]) > 0
+
+    def test_obtain_token_returns_user_with_name_and_roles(self):
+        """Contract: 200, body has user with name and roles array."""
+        user = User.objects.create_user(
+            username="memberuser",
+            password="testpass123",
+            email="memberuser@example.com",
+        )
+        Member.objects.create(
+            firstName="Jane",
+            lastName="Doe",
+            email="memberuser@example.com",
+            phone="+255700000001",
+            nationalId="id001",
+            joinDate=date(2025, 1, 1),
+            user=user,
+            roles=[MemberRole.MEMBER, MemberRole.ADMIN],
+        )
+        client = APIClient()
+        response = client.post(
+            "/api/v1/auth/token/",
+            {"username": "memberuser", "password": "testpass123"},
+            format="json",
+        )
+        assert response.status_code == status.HTTP_200_OK
+        data = response.json()
+        assert "user" in data
+        assert data["user"]["name"] == "Jane Doe"
+        assert data["user"]["roles"] == ["MEMBER", "ADMIN"]
 
     def test_obtain_token_invalid_credentials_returns_401(self):
         """Invalid username/password returns 401."""

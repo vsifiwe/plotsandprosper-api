@@ -2,6 +2,7 @@
 common/views/__init__.py
 """
 
+from .auth_views import CustomTokenObtainPairView
 from .admin_views import (
     AssetCreateView,
     BuyOutCreateView,
@@ -18,6 +19,7 @@ from .statement_views import MemberStatementView
 from .test_view import test_view
 
 __all__ = [
+    "CustomTokenObtainPairView",
     "AssetCreateView",
     "BuyOutCreateView",
     "ContributionCreateView",

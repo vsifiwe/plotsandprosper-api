@@ -2,7 +2,7 @@
 URL configuration for api project.
 """
 from django.contrib import admin
-from django.urls import include, path
+from django.urls import include, path, re_path
 from drf_spectacular.views import (
     SpectacularAPIView,
     SpectacularRedocView,
@@ -22,5 +22,5 @@ urlpatterns = [
         SpectacularRedocView.as_view(url_name="schema"),
         name="redoc",
     ),
-    path("api/v1/", include("common.urls")),
+    re_path(r"^api/v1/?", include("common.urls")),
 ]

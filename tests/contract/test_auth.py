@@ -40,8 +40,8 @@ class TestAuthToken:
         assert len(data["access"]) > 0
         assert len(data["refresh"]) > 0
 
-    def test_obtain_token_returns_user_with_name_and_roles(self):
-        """Contract: 200, body has user with name and roles array."""
+    def test_obtain_token_returns_user_with_name_and_role(self):
+        """Contract: 200, body has user with name and single role string."""
         user = User.objects.create_user(
             username="memberuser",
             password="testpass123",
@@ -67,7 +67,7 @@ class TestAuthToken:
         data = response.json()
         assert "user" in data
         assert data["user"]["name"] == "Jane Doe"
-        assert data["user"]["roles"] == ["MEMBER", "ADMIN"]
+        assert data["user"]["role"] == "ADMIN"  # highest-privilege role
 
     def test_obtain_token_invalid_credentials_returns_401(self):
         """Invalid username/password returns 401."""

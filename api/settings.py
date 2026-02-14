@@ -79,7 +79,8 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:3000",
 ]
 
-APPEND_SLASH=False
+# Allow requests with or without trailing slash (no redirect; POST body preserved).
+APPEND_SLASH = False
 
 ROOT_URLCONF = "api.urls"
 

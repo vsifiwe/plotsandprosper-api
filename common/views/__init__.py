@@ -10,6 +10,7 @@ from .admin_views import (
     ContributionWindowListCreateView,
     ExitRequestListCreateView,
     InvestmentCreateView,
+    MemberListCreateView,
     PenaltyCreateView,
     ReversalCreateView,
 )
@@ -27,6 +28,7 @@ __all__ = [
     "ExitRequestListCreateView",
     "GroupAggregatesView",
     "InvestmentCreateView",
+    "MemberListCreateView",
     "MemberPositionView",
     "MemberStatementView",
     "PenaltyCreateView",

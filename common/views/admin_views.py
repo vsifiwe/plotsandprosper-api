@@ -1,8 +1,10 @@
 """
-Admin-only views: contribution windows, contributions, penalties, investments,
-assets, reversals, exit-requests, buy-outs.
+Admin-only views: members, contribution windows, contributions, penalties,
+investments, assets, reversals, exit-requests, buy-outs.
 """
 
+from django.core.exceptions import ValidationError as DjangoValidationError
+from django.utils.dateparse import parse_date, parse_datetime
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
@@ -10,6 +12,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from common.models import ContributionWindow, Member, Reversal
+from common.models.member import MemberRole, MemberStatus
 from common.permissions import IsAdmin
 from common.services.asset_service import record_asset
 from common.services.contribution_service import (
@@ -20,6 +23,92 @@ from common.services.exit_service import create_exit_request
 from common.services.investment_service import record_investment
 from common.services.buyout_service import record_buyout
 from common.models.reversal import ReversalRecordType
+
+
+def _member_to_dict(m: Member):
+    """Serialize a Member for API response."""
+    roles = list(m.roles or [])
+    roles = [r if isinstance(r, str) else getattr(r, "value", r) for r in roles]
+    return {
+        "id": str(m.id),
+        "firstName": m.firstName,
+        "lastName": m.lastName,
+        "email": m.email,
+        "phone": m.phone,
+        "nationalId": m.nationalId,
+        "status": m.status,
+        "joinDate": m.joinDate.isoformat(),
+        "createdAt": m.createdAt.isoformat(),
+        "updatedAt": m.updatedAt.isoformat(),
+        "user_id": m.user_id,
+    }
+
+
+class MemberListCreateView(APIView):
+    """GET and POST /admin/members/ — admin only."""
+
+    permission_classes = [IsAuthenticated, IsAdmin]
+
+    def get(self, request: Request):
+        """List all members (paginated slice)."""
+        members = Member.objects.all().order_by("-joinDate")[:200]
+        return Response([_member_to_dict(m) for m in members])
+
+    def post(self, request: Request):
+        """Create a new member."""
+        firstName = request.data.get("firstName")
+        lastName = request.data.get("lastName")
+        email = request.data.get("email")
+        phone = request.data.get("phone")
+        nationalId = request.data.get("nationalId")
+        join_date_raw = request.data.get("joinDate")
+        status = request.data.get("status", MemberStatus.ACTIVE)
+        roles_raw = request.data.get("roles")
+
+        if not all([firstName, lastName, email, phone, nationalId, join_date_raw]):
+            return Response(
+                {"detail": "firstName, lastName, email, phone, nationalId, joinDate required"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        join_date = parse_date(join_date_raw)
+        if not join_date:
+            return Response(
+                {"detail": "Invalid joinDate"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        roles = roles_raw if isinstance(roles_raw, list) else [MemberRole.MEMBER]
+        roles = [r if isinstance(r, str) else getattr(r, "value", r) for r in roles]
+        if MemberRole.MEMBER not in roles:
+            roles = [MemberRole.MEMBER] + [r for r in roles if r != MemberRole.MEMBER]
+        valid_statuses = {s.value for s in MemberStatus}
+        if status not in valid_statuses:
+            status = MemberStatus.ACTIVE.value
+        status = getattr(status, "value", status)  # enum -> string
+
+        try:
+            member = Member(
+                firstName=firstName.strip(),
+                lastName=lastName.strip(),
+                email=email.strip().lower(),
+                phone=phone.strip(),
+                nationalId=nationalId.strip(),
+                joinDate=join_date,
+                status=status,
+                roles=roles,
+            )
+            member.full_clean()
+            member.save()
+            return Response(_member_to_dict(member), status=status.HTTP_201_CREATED)
+        except DjangoValidationError as e:
+            payload = e.message_dict if getattr(e, "message_dict", None) else {"detail": str(e)}
+            return Response(payload, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            if "unique" in str(e).lower() or "duplicate" in str(e).lower():
+                return Response(
+                    {"detail": "A member with this email, phone, or nationalId already exists."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            raise
 
 
 class ContributionWindowListCreateView(APIView):
